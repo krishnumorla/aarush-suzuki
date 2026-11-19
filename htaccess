@@ -1,0 +1,21 @@
+# Root .htaccess for hosts that deploy the WHOLE repository into the web root
+# (e.g. Hostinger → Git). The website itself lives in site/, so every request is
+# served from there. This also hides the source files (README, build.ps1, src/,
+# otp-worker/ …) because /README.md becomes site/README.md, which doesn't exist.
+#
+# site/.htaccess still handles the old WordPress 301 redirects and the 404 page.
+# Not needed (and harmless) when only the contents of site/ are uploaded.
+
+Options -Indexes
+DirectoryIndex index.html
+RewriteEngine On
+
+# /about → /about/  (done here, otherwise Apache adds the slash itself and
+# redirects to /site/about/, exposing the folder name)
+RewriteCond %{REQUEST_URI} !^/site/
+RewriteCond %{DOCUMENT_ROOT}/site/$1 -d
+RewriteRule ^(.*[^/])$ /$1/ [R=301,L]
+
+# Serve everything else from site/
+RewriteCond %{REQUEST_URI} !^/site/
+RewriteRule ^(.*)$ site/$1 [L]
